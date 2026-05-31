@@ -201,6 +201,33 @@ async def test_pwm_freq(dut):
 
     dut._log.info("PWM Frequency test completed successfully")
 
+    # Wait for first rising edge with timeout
+    timeout = 10000
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 1:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for signal to go LOW"
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 0:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for first rising edge"
+    t1 = cocotb.utils.get_sim_time(unit="ns")
+
+    # Wait for second rising edge with timeout
+    await ClockCycles(dut.clk, 1)
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 1:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for signal to go LOW again"
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 0:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for second rising edge"
+    t2 = cocotb.utils.get_sim_time(unit="ns")
 
 @cocotb.test()
 async def test_pwm_duty(dut):
@@ -263,3 +290,33 @@ async def test_pwm_duty(dut):
     dut._log.info("50% duty cycle passed!")
 
     dut._log.info("PWM Duty Cycle test completed successfully")
+
+    # Wait for rising edge with timeout
+    timeout = 10000
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 1:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for LOW before rising edge"
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 0:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for rising edge"
+    t_rising = cocotb.utils.get_sim_time(unit="ns")
+
+    # Wait for falling edge with timeout
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 1:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for falling edge"
+    t_falling = cocotb.utils.get_sim_time(unit="ns")
+
+    # Wait for next rising edge with timeout
+    count = 0
+    while (dut.uo_out.value.to_unsigned() & 0x1) == 0:
+        await ClockCycles(dut.clk, 1)
+        count += 1
+        assert count < timeout, "Timeout waiting for second rising edge"
+    t_rising2 = cocotb.utils.get_sim_time(unit="ns")

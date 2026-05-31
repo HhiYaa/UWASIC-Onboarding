@@ -19,7 +19,6 @@ module spi_peripheral (
 
 
 // CDC Synchronizers
-
     reg SCLK_sync1, SCLK_sync2, SCLK_prev;
     reg nCS_sync1,  nCS_sync2;
     reg COPI_sync1, COPI_sync2;
@@ -46,13 +45,11 @@ module spi_peripheral (
 
 
 // Edge Detection
-
     wire SCLK_rising = (SCLK_sync2 == 1'b1) && (SCLK_prev  == 1'b0);
     wire nCS_posedge = (nCS_sync1  == 1'b1) && (nCS_sync2  == 1'b0);
 
 
 // Shift Register
-
     reg [15:0] shift_reg;
     reg [4:0]  bit_count;
 
@@ -94,6 +91,7 @@ module spi_peripheral (
                 7'h02: en_reg_pwm_7_0  <= data;
                 7'h03: en_reg_pwm_15_8 <= data;
                 7'h04: pwm_duty_cycle  <= data;
+                default: ;
             endcase
         end
     end
